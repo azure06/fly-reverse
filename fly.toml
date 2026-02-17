@@ -11,14 +11,21 @@ primary_region = "nrt"
 [[services]]
   internal_port = 3128
   protocol = "tcp"
-  auto_stop_machines = "stop"     # or "suspend"
-  auto_start_machines = false     # disables automatic start
-  min_machines_running = 0        # ensures no machines stay running
+  auto_stop_machines = "suspend"  # "suspend" is usually faster to resume than "stop"
+  auto_start_machines = true      # allow fly proxy to start the machine when requests come in
+  min_machines_running = 1        # keep 1 machine running to avoid cold starts
 
+  # Port 443: HTTPS port with TLS for secure encrypted proxy connections
+  # Fly.io terminates TLS and forwards plain HTTP to Squid on port 3128
   [[services.ports]]
     port = 443
     handlers = ["tls"]
 
+  # Port 80: Unencrypted HTTP port (use port 443 for security)
+  [[services.ports]]
+    port = 80
+
+  # Port 3128: Traditional Squid proxy port (unencrypted, use port 443 for security)
   [[services.ports]]
     port = 3128
 

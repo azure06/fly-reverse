@@ -8,5 +8,14 @@ COPY squid.conf /etc/squid/squid.conf
 # Optional: Expose Squid's default proxy port
 EXPOSE 3128
 
-# Default command (inherited from base image), but explicitly defining for clarity
+# Fix permissions for the proxy user
+# Note: /run/squid is created here but gets recreated at runtime as tmpfs,
+# so the actual PID file location is configured in squid.conf to use /var/spool/squid
+RUN mkdir -p /run/squid && \
+    chown -R proxy:proxy /var/spool/squid /var/log/squid /run/squid
+
+# Switch to the proxy user
+USER proxy
+
+# Start Squid
 CMD ["squid", "-NYCd", "1"]
